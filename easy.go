@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 )
 
 type Config struct {
@@ -50,7 +51,7 @@ func Run(cfg *Config, fn func(UI) error) error {
 		return err
 	}
 	sign := make(chan os.Signal)
-	signal.Notify(sign, os.Interrupt)
+	signal.Notify(sign, os.Interrupt, os.Kill, syscall.SIGTERM)
 	select {
 	case <-sign:
 	case <-ui.Done():

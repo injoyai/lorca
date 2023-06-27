@@ -66,6 +66,7 @@ type APP interface {
 	GetValueByID(id string) string
 	GetVarByID(id string) *conv.Var
 	SetValueByID(id string, value interface{})
+	SetInnerByID(id string, value interface{})
 }
 
 type app struct {
@@ -83,5 +84,10 @@ func (this *app) GetVarByID(id string) *conv.Var {
 
 func (this *app) SetValueByID(id string, value interface{}) {
 	js := fmt.Sprintf("document.getElementById('%s').value='%s'", id, conv.String(value))
+	this.Eval(js)
+}
+
+func (this *app) SetInnerByID(id string, value interface{}) {
+	js := fmt.Sprintf("document.getElementById('%s').innerHTML='%s'", id, conv.String(value))
 	this.Eval(js)
 }

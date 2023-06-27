@@ -1,6 +1,8 @@
 package lorca
 
 import (
+	"fmt"
+	"github.com/injoyai/conv"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -40,14 +42,14 @@ func (this *Config) new() *Config {
 	return this
 }
 
-func Run(cfg *Config, fn func(UI) error) error {
+func Run(cfg *Config, fn func(APP) error) error {
 	cfg.new()
 	ui, err := New("data:text/html,"+url.PathEscape(cfg.Html), cfg.Dir, cfg.Width, cfg.Height, cfg.Options...)
 	if err != nil {
 		return err
 	}
 	defer ui.Close()
-	if err = fn(ui); err != nil {
+	if err = fn(&app{ui}); err != nil {
 		return err
 	}
 	sign := make(chan os.Signal)
@@ -57,4 +59,29 @@ func Run(cfg *Config, fn func(UI) error) error {
 	case <-ui.Done():
 	}
 	return nil
+}
+
+type APP interface {
+	UI
+	GetValueByID(id string) string
+	GetVarByID(id string) *conv.Var
+	SetValueByID(id string, value interface{})
+}
+
+type app struct {
+	UI
+}
+
+func (this *app) GetValueByID(id string) string {
+	js := fmt.Sprintf("document.getElementById('%s').value", id)
+	return this.Eval(js).String()
+}
+
+func (this *app) GetVarByID(id string) *conv.Var {
+	return conv.New(this.GetValueByID(id))
+}
+
+func (this *app) SetValueByID(id string, value interface{}) {
+	js := fmt.Sprintf("document.getElementById('%s').value='%s'", id, conv.String(value))
+	this.Eval(js)
 }

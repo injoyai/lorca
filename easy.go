@@ -42,15 +42,19 @@ func (this *Config) new() *Config {
 	return this
 }
 
-func Run(cfg *Config, fn func(APP) error) error {
+func Run(cfg *Config, fn ...func(APP) error) error {
 	cfg.new()
 	ui, err := New("data:text/html,"+url.PathEscape(cfg.Html), cfg.Dir, cfg.Width, cfg.Height, cfg.Options...)
 	if err != nil {
 		return err
 	}
 	defer ui.Close()
-	if err = fn(&app{ui}); err != nil {
-		return err
+	for _, v := range fn {
+		if v != nil {
+			if err = v(&app{ui}); err != nil {
+				return err
+			}
+		}
 	}
 	sign := make(chan os.Signal)
 	signal.Notify(sign, os.Interrupt, os.Kill, syscall.SIGTERM)
@@ -63,8 +67,9 @@ func Run(cfg *Config, fn func(APP) error) error {
 
 type APP interface {
 	UI
+	GetByID(id string, nature string) string
+	GetVarByID(id string, nature string) *conv.Var
 	GetValueByID(id string) string
-	GetVarByID(id string) *conv.Var
 	SetValueByID(id string, value interface{})
 	SetInnerByID(id string, value interface{})
 }
@@ -73,13 +78,19 @@ type app struct {
 	UI
 }
 
-func (this *app) GetValueByID(id string) string {
-	js := fmt.Sprintf("document.getElementById('%s').value", id)
+func (this *app) GetByID(id string, nature string) string {
+	js := fmt.Sprintf("document.getElementById('%s').%s", id, nature)
 	return this.Eval(js).String()
 }
 
-func (this *app) GetVarByID(id string) *conv.Var {
-	return conv.New(this.GetValueByID(id))
+func (this *app) GetVarByID(id string, nature string) *conv.Var {
+	js := fmt.Sprintf("document.getElementById('%s').%s", id, nature)
+	return conv.New(this.Eval(js).String())
+}
+
+func (this *app) GetValueByID(id string) string {
+	js := fmt.Sprintf("document.getElementById('%s').value", id)
+	return this.Eval(js).String()
 }
 
 func (this *app) SetValueByID(id string, value interface{}) {

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻译界面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+            color: #fff;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 20px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        p {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        span {
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>翻译界面</h1>
+</header>
+
+<main>
+    <label for="sourceText">原文：</label>
+    <textarea id="sourceText" placeholder="在这里输入要翻译的文本"></textarea>
+
+    <button onclick="translate()">翻译</button>
+
+    <p>翻译结果：<span id="translationResult"></span></p>
+</main>
+
+<script>
+    function translate() {
+        const sourceText = document.getElementById('sourceText').value;
+
+        // TODO: 使用百度翻译 API 进行翻译，将翻译结果更新到 #translationResult 元素中
+        // 请注意，这里需要使用你自己的百度翻译 API Key 和密钥
+
+        // 示例：
+        // const apiKey = 'YOUR_API_KEY';
+        // const secretKey = 'YOUR_SECRET_KEY';
+        // const apiUrl = `http://api.fanyi.baidu.com/api/trans/vip/translate?q=${encodeURIComponent(sourceText)}&from=auto&to=zh&appid=${apiKey}&salt=123&sign=${md5(appId + sourceText + salt + secretKey)}`;
+
+        // 使用 fetch 或其他方式请求翻译接口，然后将结果更新到 #translationResult 元素中
+        // fetch(apiUrl)
+        //   .then(response => response.json())
+        //   .then(data => {
+        //     const translationResult = data.trans_result[0].dst;
+        //     document.getElementById('translationResult').textContent = translationResult;
+        //   })
+        //   .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>

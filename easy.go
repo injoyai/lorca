@@ -3,7 +3,6 @@ package lorca
 import (
 	"fmt"
 	"github.com/injoyai/conv"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"os/signal"
@@ -12,39 +11,46 @@ import (
 )
 
 type Config struct {
-	Width   int //宽
-	Height  int //高
-	Html    string
-	Dir     string
-	Options []string
+	Width   int      //宽
+	Height  int      //高
+	Source  string   //资源,可以是网址,本地html文件,或者html内容
+	Options []string //可选参数
 }
 
-func (this *Config) new() *Config {
+func (this *Config) init() *Config {
 	if this.Width == 0 {
 		this.Width = 480
 	}
 	if this.Height == 0 {
 		this.Height = 320
 	}
-	if strings.HasPrefix(this.Html, "./") || strings.HasPrefix(this.Html, "/") {
-		bs, err := ioutil.ReadFile(this.Html)
-		if err == nil {
-			this.Html = string(bs)
+
+	if len(this.Source) == 0 {
+		//空白内容
+
+	} else if strings.HasPrefix(this.Source, "http://") || strings.HasPrefix(this.Source, "https://") {
+		//是个网址
+
+	} else if stat, err := os.Stat(this.Source); stat != nil && !os.IsNotExist(err) {
+		if !stat.IsDir() {
+			bs, _ := os.ReadFile(this.Source)
+			this.Source = "data:text/html," + url.PathEscape(string(bs))
+		} else {
+			//文件夹
 		}
+
+	} else {
+		this.Source = "data:text/html," + url.PathEscape(this.Source)
+
 	}
-	if len(this.Html) == 0 {
-		this.Html = `
-	<html>
-		<head><title>Hello</title></head>
-		<body><h1>Hello, world!</h1></body>
-	</html>`
-	}
+
 	return this
 }
 
 func Run(cfg *Config, fn ...func(APP) error) error {
-	cfg.new()
-	ui, err := New("data:text/html,"+url.PathEscape(cfg.Html), cfg.Dir, cfg.Width, cfg.Height, cfg.Options...)
+	cfg.init()
+	//"data:text/html,"+ url.PathEscape(this.Source)
+	ui, err := New(cfg.Source, "", cfg.Width, cfg.Height, cfg.Options...)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,6 @@ import (
 
 func main() {
 	lorca.Run(&lorca.Config{
-		Source: "./examples/fanyi/index.html",
+		Index: "./examples/fanyi/index.html",
 	})
 }
